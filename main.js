@@ -11,9 +11,9 @@ const messageHandlerFunc = async (message) => {
     return;
   }
 
-  console.log(`Handling message from: ${message.from}`);
-  console.log(`Device: ${message.deviceType}`);
-  console.log(`Full text: ${message.body}`);
+  console.info(`Handling message from: ${message.from}`);
+  console.info(`Device: ${message.deviceType}`);
+  console.info(`Full text: ${message.body}`);
 
   const originalMessage = inputs[1];
   const urls = urlHelper.extractUrls({ text: originalMessage });

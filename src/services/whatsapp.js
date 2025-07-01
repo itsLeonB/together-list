@@ -7,14 +7,28 @@ exports.setupAndRun = ({ messageHandlerFunc }) => {
   });
 
   client.on('ready', () => {
-    console.log('Client is ready!');
+    console.info('Client is ready!');
+  });
+
+  client.on('auth_failure', (msg) => {
+    console.error('Authentication failed:', msg);
+    process.exit(1);
+  });
+
+  client.on('disconnected', (reason) => {
+    console.error('Client was logged out:', reason);
+    process.exit(1);
   });
 
   client.on('qr', (qr) => {
     qrcode.generate(qr, { small: true });
   });
 
-  client.on('message_create', messageHandlerFunc);
+  client.on('message_create', (message) => {
+    if (!message.fromMe) {
+      messageHandlerFunc(message);
+    }
+  });
 
   client.initialize();
 };
