@@ -1,16 +1,10 @@
 const { Client } = require('@notionhq/client');
-const { NOTION } = require('./secrets');
-const tiktok = require('./tiktok');
+const { NOTION } = require('../config');
 
 const notion = new Client({ auth: NOTION.API_KEY });
 
-exports.addToDatabase = async ({ type, message }) => {
+exports.addToDatabase = async ({ message, url }) => {
   try {
-    const videoFile = await tiktok.download({ url: message });
-    if (!videoFile) {
-      throw new Error('Failed to download video');
-    }
-
     const response = await notion.pages.create({
       parent: {
         database_id: NOTION.DATABASE_ID,
@@ -27,11 +21,6 @@ exports.addToDatabase = async ({ type, message }) => {
             },
           ],
         },
-        type: {
-          select: {
-            name: type,
-          },
-        },
         originalMessage: {
           rich_text: [
             {
@@ -42,15 +31,9 @@ exports.addToDatabase = async ({ type, message }) => {
             },
           ],
         },
-        videoFile: {
-          rich_text: [
-            {
-              type: 'text',
-              text: {
-                content: videoFile,
-              },
-            },
-          ],
+        extractedLink: {
+          type: 'url',
+          url,
         },
       },
     });
