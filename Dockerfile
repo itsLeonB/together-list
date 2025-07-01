@@ -1,21 +1,37 @@
-FROM node:23-alpine
+# Use slim image with Chromium and required libs
+FROM node:23-slim
 
 WORKDIR /app
 
-# Copy dependency declarations and install
+# Install Chromium + dependencies
+RUN apt-get update && apt-get install -y \
+  chromium \
+  libatk-bridge2.0-0 \
+  libatk1.0-0 \
+  libcups2 \
+  libdbus-1-3 \
+  libgdk-pixbuf2.0-0 \
+  libnspr4 \
+  libnss3 \
+  libx11-xcb1 \
+  libxcomposite1 \
+  libxdamage1 \
+  libxrandr2 \
+  fonts-liberation \
+  libasound2 \
+  libappindicator3-1 \
+  xdg-utils \
+  ca-certificates \
+  wget \
+  && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Copy app
 COPY package*.json ./
 RUN npm ci --only=production
-
-# Copy app source code
 COPY . .
 
-# Copy and set permissions on entrypoint script
-COPY bin/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh && \
-	chown -R node:node /app
+# Fix permissions and switch user
+RUN chown -R node:node /app
+USER node
 
-# Run as non-root user
-# USER node
-
-# Start with exec form to comply with SonarQube rule S7019
-CMD ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["npm", "start"]

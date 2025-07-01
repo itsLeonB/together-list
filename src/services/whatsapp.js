@@ -1,5 +1,7 @@
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const fs = require('fs');
+const path = require('path');
 const qrcode = require('qrcode-terminal');
+const { Client, LocalAuth } = require('whatsapp-web.js');
 
 exports.setupAndRun = ({ messageHandlerFunc }) => {
   const client = new Client({
@@ -20,7 +22,7 @@ exports.setupAndRun = ({ messageHandlerFunc }) => {
     process.exit(1);
   });
 
-  client.on('qr', (qr) => {
+  client.on('qr', async (qr) => {
     qrcode.generate(qr, { small: true });
   });
 
@@ -30,5 +32,20 @@ exports.setupAndRun = ({ messageHandlerFunc }) => {
     }
   });
 
+  cleanChromeLock();
+
   client.initialize();
+};
+
+const cleanChromeLock = () => {
+  const profilePath = path.join('.wwebjs_auth', 'session');
+  const lockFiles = ['SingletonLock', 'SingletonSocket', 'SingletonCookie'];
+
+  for (const file of lockFiles) {
+    const filePath = path.join(profilePath, file);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.info(`🧹 Deleted lock file: ${file}`);
+    }
+  }
 };
