@@ -4,6 +4,7 @@ const requiredEnvVars = [
   'NOTION_API_KEY',
   'NOTION_DATABASE_ID',
   'MESSAGE_KEYWORD',
+  'DATABASE_URL',
 ];
 
 const missingVars = requiredEnvVars.filter((varName) => !process.env[varName]);
@@ -27,5 +28,8 @@ module.exports = Object.freeze({
       MULTIPLE_URLS: 'Multiple URLs found, saving to multiple entries...',
       ERROR: 'There was an unexpected error. Please contact developer.',
     },
+  },
+  DATABASE: {
+    URL: process.env.DATABASE_URL,
   },
 });

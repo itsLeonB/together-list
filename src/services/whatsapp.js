@@ -1,11 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 const qrcode = require('qrcode-terminal');
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Client, RemoteAuth } = require('whatsapp-web.js');
 
-exports.setupAndRun = ({ messageHandlerFunc }) => {
+exports.setupAndRun = ({ messageHandlerFunc, store }) => {
   const client = new Client({
-    authStrategy: new LocalAuth(),
+    authStrategy: new RemoteAuth({
+      store,
+      backupSyncIntervalMs: 300000,
+    }),
+    puppeteer: { headless: true },
   });
 
   client.on('ready', () => {
