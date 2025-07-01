@@ -25,6 +25,7 @@ module.exports = Object.freeze({
     RESPONSE: {
       NO_URL: 'No URL found in the message',
       MULTIPLE_URLS: 'Multiple URLs found, saving to multiple entries...',
+      ERROR: 'There was an unexpected error. Please contact developer.',
     },
   },
 });
