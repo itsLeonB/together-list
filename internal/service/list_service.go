@@ -56,7 +56,7 @@ func (ls *ListService) SaveMessage(ctx context.Context, message string, status c
 		go func(inputUrl string) {
 			defer wg.Done()
 			response, err := ls.saveSingleEntry(ctx, entity.DatabasePageEntry{
-				Title:           "pending",
+				Title:           appconstant.PendingTitle,
 				URL:             inputUrl,
 				OriginalMessage: message,
 			})
