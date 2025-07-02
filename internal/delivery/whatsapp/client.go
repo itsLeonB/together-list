@@ -10,18 +10,16 @@ import (
 	"go.mau.fi/whatsmeow"
 )
 
-func SetupClient(
-	handlers *provider.Handlers,
-	loggers *provider.Loggers,
-	stores *provider.Stores,
-) *whatsmeow.Client {
+func SetupClient(loggers *provider.Loggers, stores *provider.Stores) *whatsmeow.Client {
 	client := whatsmeow.NewClient(stores.Device, loggers.Client)
 
-	client.AddEventHandler(handlers.Message.HandleMessage())
-
 	if client.Store.ID == nil {
-		qrChan, _ := client.GetQRChannel(context.Background())
-		err := client.Connect()
+		qrChan, err := client.GetQRChannel(context.Background())
+		if err != nil {
+			log.Fatalf("Unable to get QR channel: %v", err)
+		}
+
+		err = client.Connect()
 		if err != nil {
 			log.Fatalf("Unable to connect: %v", err)
 		}
@@ -42,4 +40,8 @@ func SetupClient(
 	}
 
 	return client
+}
+
+func SetupHandlers(client *whatsmeow.Client, handlers *provider.Handlers) {
+	client.AddEventHandler(handlers.Message.HandleMessage())
 }
