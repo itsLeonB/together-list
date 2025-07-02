@@ -1,37 +1,20 @@
-# Use slim image with Chromium and required libs
-FROM node:23-slim
+FROM golang:1.24-alpine AS build-stage
 
 WORKDIR /app
 
-# Install Chromium + dependencies
-RUN apt-get update && apt-get install -y \
-  chromium \
-  libatk-bridge2.0-0 \
-  libatk1.0-0 \
-  libcups2 \
-  libdbus-1-3 \
-  libgdk-pixbuf2.0-0 \
-  libnspr4 \
-  libnss3 \
-  libx11-xcb1 \
-  libxcomposite1 \
-  libxdamage1 \
-  libxrandr2 \
-  fonts-liberation \
-  libasound2 \
-  libappindicator3-1 \
-  xdg-utils \
-  ca-certificates \
-  wget \
-  && apt-get clean && rm -rf /var/lib/apt/lists/*
+COPY go.mod go.sum ./
+RUN go mod download
 
-# Copy app
-COPY package*.json ./
-RUN npm ci --only=production
 COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -buildvcs=false -ldflags='-w -s' \
+    -o /together-list ./cmd/whatsapp/main.go
 
-# Fix permissions and switch user
-RUN chown -R node:node /app
-USER node
+FROM gcr.io/distroless/static-debian12 AS build-release-stage
 
-CMD ["npm", "start"]
+WORKDIR /
+
+COPY --from=build-stage /together-list /together-list
+
+USER nonroot:nonroot
+
+ENTRYPOINT ["/together-list"]
