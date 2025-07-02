@@ -76,7 +76,9 @@ func (mh *MessageHandler) HandleMessage() func(event any) {
 		go mh.sendStatusUpdates(statusChan, chatID, ctxInfo)
 
 		// process the message
-		responses, errs := mh.listService.SaveMessage(body, statusChan)
+		responses, errs := mh.listService.SaveMessage(ctx, body, statusChan)
+
+		close(statusChan)
 
 		// collect messages to respond with
 		allMessages := mh.aggregateMessages(responses, errs)

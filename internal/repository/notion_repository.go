@@ -19,8 +19,8 @@ func NewNotionRepository(databaseID, token string) *NotionRepository {
 		client:     notionapi.NewClient(notionapi.Token(token)),
 	}
 }
-func (nr *NotionRepository) AddPageToDatabase(entry entity.DatabasePageEntry) (*notionapi.Page, error) {
-	newPage, err := nr.client.Page.Create(context.Background(), &notionapi.PageCreateRequest{
+func (nr *NotionRepository) AddPageToDatabase(ctx context.Context, entry entity.DatabasePageEntry) (*notionapi.Page, error) {
+	newPage, err := nr.client.Page.Create(ctx, &notionapi.PageCreateRequest{
 		Parent: notionapi.Parent{
 			Type:       notionapi.ParentTypeDatabaseID,
 			DatabaseID: notionapi.DatabaseID(nr.databaseID),

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -23,14 +24,14 @@ func NewListService(
 		notionRepository,
 	}
 }
-func (ls *ListService) SaveMessage(message string, status chan<- string) ([]string, []error) {
+func (ls *ListService) SaveMessage(ctx context.Context, message string, status chan<- string) ([]string, []error) {
 	urls := util.ExtractUrls(message)
 	if len(urls) == 0 {
 		return nil, []error{ezutil.BadRequestError(appconstant.NoURL)}
 	}
 
 	if len(urls) == 1 {
-		response, err := ls.saveSingleEntry(entity.DatabasePageEntry{
+		response, err := ls.saveSingleEntry(ctx, entity.DatabasePageEntry{
 			Title:           "pending",
 			URL:             urls[0],
 			OriginalMessage: message,
@@ -54,7 +55,7 @@ func (ls *ListService) SaveMessage(message string, status chan<- string) ([]stri
 		wg.Add(1)
 		go func(inputUrl string) {
 			defer wg.Done()
-			response, err := ls.saveSingleEntry(entity.DatabasePageEntry{
+			response, err := ls.saveSingleEntry(ctx, entity.DatabasePageEntry{
 				Title:           "pending",
 				URL:             inputUrl,
 				OriginalMessage: message,
@@ -74,8 +75,8 @@ func (ls *ListService) SaveMessage(message string, status chan<- string) ([]stri
 	return responses, errors
 }
 
-func (ls *ListService) saveSingleEntry(entry entity.DatabasePageEntry) (string, error) {
-	page, err := ls.notionRepository.AddPageToDatabase(entry)
+func (ls *ListService) saveSingleEntry(ctx context.Context, entry entity.DatabasePageEntry) (string, error) {
+	page, err := ls.notionRepository.AddPageToDatabase(ctx, entry)
 	if err != nil {
 		return "", err
 	}
