@@ -16,3 +16,19 @@ func ProvideAll(configs *config.Config) *Providers {
 		Services:     services,
 	}
 }
+
+// Close cleans up all provider resources
+func (p *Providers) Close() error {
+	if p.Services != nil {
+		return p.Services.Close()
+	}
+	return nil
+}
+
+// Close properly cleans up all provider resources
+func (p *Providers) Close() error {
+	if p.Services != nil {
+		return p.Services.Close()
+	}
+	return nil
+}

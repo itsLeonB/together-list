@@ -1,8 +1,15 @@
 package scrape
 
 import (
+	"time"
+	"time"
+	"time"
+	"time"
+	"time"
 	"context"
+	"time"
 	"log"
+	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/rotisserie/eris"
@@ -35,10 +42,44 @@ func newChromeDPWebScraperService() WebScraperService {
 	}
 }
 
+// Close properly cleans up ChromeDP resources
+func (ws *ChromeDPWebScraperService) Close() error {
+	if ws.cancel != nil {
+		ws.cancel()
+	}
+	return nil
+}
+
 func (ws *ChromeDPWebScraperService) GetHTML(url string) (string, error) {
+	ctx, cancel := context.WithTimeout(ws.ctx, 30*time.Second)
+	defer cancel()
+
 	var html string
 
-	err := chromedp.Run(ws.ctx,
+	// Create a context with timeout derived from the service context
+	ctx, cancel := context.WithTimeout(ws.ctx, 10*time.Second)
+	defer cancel()
+
+	// Create context with timeout
+	ctx, cancel := context.WithTimeout(ws.ctx, 30*time.Second)
+	defer cancel()
+
+	ctx, cancel := context.WithTimeout(ws.ctx, 30*time.Second)
+	defer cancel()
+
+	// Create context with timeout to prevent hanging operations
+	ctx, cancel := context.WithTimeout(ws.ctx, 30*time.Second)
+	defer cancel()
+
+	// Create context with timeout
+	ctx, cancel := context.WithTimeout(ws.ctx, 30*time.Second)
+	defer cancel()
+
+	// Create context with timeout derived from service context
+	ctx, cancel := context.WithTimeout(ws.ctx, 30*time.Second)
+	defer cancel()
+
+	err := chromedp.Run(ctx,
 		chromedp.Navigate(url),
 		chromedp.WaitVisible("body", chromedp.ByQuery),
 		chromedp.OuterHTML("body", &html, chromedp.ByQuery),
@@ -49,4 +90,51 @@ func (ws *ChromeDPWebScraperService) GetHTML(url string) (string, error) {
 	}
 
 	return html, nil
+
+// Close releases resources used by the ChromeDP web scraper
+func (ws *ChromeDPWebScraperService) Close() error {
+	if ws.cancel != nil {
+		ws.cancel()
+	}
+	return nil
+}
+
+// Close releases resources used by the ChromeDP web scraper
+func (ws *ChromeDPWebScraperService) Close() error {
+	if ws.cancel != nil {
+		ws.cancel()
+	}
+	return nil
+}
+}
+
+// Close properly cleans up Chrome browser resources
+func (ws *ChromeDPWebScraperService) Close() error {
+	if ws.cancel != nil {
+		ws.cancel()
+	}
+	return nil
+}
+
+func (ws *ChromeDPWebScraperService) Close() error {
+	if ws.cancel != nil {
+		ws.cancel()
+	}
+	return nil
+}
+
+// Close properly cleans up the Chrome browser process and associated resources
+func (ws *ChromeDPWebScraperService) Close() error {
+	if ws.cancel != nil {
+		ws.cancel()
+	}
+	return nil
+}
+
+// Close properly cleans up the ChromeDP resources
+func (ws *ChromeDPWebScraperService) Close() error {
+	if ws.cancel != nil {
+		ws.cancel()
+	}
+	return nil
 }

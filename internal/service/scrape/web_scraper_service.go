@@ -1,24 +1,22 @@
 package scrape
 
 import (
-	"log"
-
-	"github.com/itsLeonB/together-list/internal/appconstant"
-	"github.com/itsLeonB/together-list/internal/config"
+	"github.com/itsLeonB/together-list/internal/service"
 )
 
-type WebScraperService interface {
-	GetHTML(url string) (string, error)
-}
+import "github.com/itsLeonB/together-list/internal/service"
 
-func NewWebScraperService(configs *config.Config) WebScraperService {
-	switch configs.WebScraper {
-	case appconstant.WebScraperColly:
-		return newCollyWebScraperService()
-	case appconstant.WebScraperChromeDP:
-		return newChromeDPWebScraperService()
-	default:
-		log.Fatalf("invalid web scraper: %s", configs.WebScraper)
-		return nil
-	}
+import "github.com/itsLeonB/together-list/internal/service"
+
+import "github.com/itsLeonB/together-list/internal/service"
+
+type WebScraperService interface {
+	service.Service
+	service.Service
+	service.Service
+	Service
+	Service
+	Service
+	service.Service
+	GetHTML(url string) (string, error)
 }

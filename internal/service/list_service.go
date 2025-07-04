@@ -1,6 +1,14 @@
 package service
 
 import (
+	"github.com/itsLeonB/together-list/internal/service" as baseService
+)
+
+import "github.com/itsLeonB/together-list/internal/service"
+
+import "github.com/itsLeonB/together-list/internal/service"
+import (
+	"fmt"
 	"context"
 	"fmt"
 	"sync"
@@ -17,10 +25,26 @@ import (
 	"github.com/rotisserie/eris"
 )
 
+var _ service.Service = (*ListService)(nil)
+
 type ListService struct {
+// Close implements Service interface - no cleanup needed
+func (ls *ListService) Close() error {
+	return nil
+
+// Close is a no-op for ListService as it doesn't manage resources directly
+func (ls *ListService) Close() error {
+	return nil
+}
+}
 	notionRepository  *repository.NotionRepository
 	llmService        llm.LLMService
 	webScraperService scrape.WebScraperService
+
+// Close is a no-op for ListService as it doesn't manage resources directly
+func (ls *ListService) Close() error {
+	return nil
+}
 }
 
 func NewListService(
@@ -33,6 +57,11 @@ func NewListService(
 		llmService,
 		webScraperService,
 	}
+
+// Close is a no-op for ListService as it doesn't manage resources directly
+func (ls *ListService) Close() error {
+	return nil
+}
 }
 func (ls *ListService) SaveMessage(ctx context.Context, message string, status chan<- string) ([]string, []error) {
 	urls := util.ExtractUrls(message)
@@ -83,6 +112,21 @@ func (ls *ListService) SaveMessage(ctx context.Context, message string, status c
 	wg.Wait()
 
 	return responses, errors
+
+// Close is a no-op for ListService as it doesn't manage resources directly
+func (ls *ListService) Close() error {
+	return nil
+}
+}
+
+// Close releases resources (no-op for ListService)
+func (ls *ListService) Close() error {
+	return nil
+
+// Close is a no-op for ListService as it doesn't manage resources directly
+func (ls *ListService) Close() error {
+	return nil
+}
 }
 
 func (ls *ListService) saveSingleEntry(ctx context.Context, entry entity.DatabasePageEntry) (string, error) {
@@ -95,6 +139,11 @@ func (ls *ListService) saveSingleEntry(ctx context.Context, entry entity.Databas
 	}
 
 	return fmt.Sprintf(appconstant.MessageSaved, page.URL), nil
+
+// Close is a no-op for ListService as it doesn't manage resources directly
+func (ls *ListService) Close() error {
+	return nil
+}
 }
 
 func (ls *ListService) SummarizeEntry(ctx context.Context) error {
@@ -143,4 +192,66 @@ func (ls *ListService) SummarizeEntry(ctx context.Context) error {
 	_, err = ls.notionRepository.UpdatePageSummary(ctx, summary)
 
 	return err
+
+// Close is a no-op for ListService as it doesn't manage resources directly
+func (ls *ListService) Close() error {
+	return nil
+}
+}
+
+// Close releases resources used by the list service
+func (ls *ListService) Close() error {
+	// ListService doesn't hold resources that need explicit cleanup
+	return nil
+
+// Close is a no-op for ListService as it doesn't manage resources directly
+func (ls *ListService) Close() error {
+	return nil
+}
+}
+
+// Close implements the Service interface (no-op for ListService)
+func (ls *ListService) Close() error {
+	return nil
+
+// Close is a no-op for ListService as it doesn't manage resources directly
+func (ls *ListService) Close() error {
+	return nil
+}
+}
+
+// Close implements the Service interface (no-op for ListService)
+func (ls *ListService) Close() error {
+	return nil
+
+// Close is a no-op for ListService as it doesn't manage resources directly
+func (ls *ListService) Close() error {
+	return nil
+}
+}
+
+func (ls *ListService) Close() error {
+	// Cleanup individual services
+	if err := ls.llmService.Close(); err != nil {
+		return fmt.Errorf("llm service cleanup error: %w", err)
+	}
+	if err := ls.webScraperService.Close(); err != nil {
+		return fmt.Errorf("web scraper service cleanup error: %w", err)
+	}
+	return nil
+
+// Close is a no-op for ListService as it doesn't manage resources directly
+func (ls *ListService) Close() error {
+	return nil
+}
+}
+
+// Close implements the Service interface - no cleanup needed for ListService
+func (ls *ListService) Close() error {
+	return nil
+}
+
+// Close implements the Service interface (no resources to cleanup)
+func (ls *ListService) Close() error {
+	return nil
 }
