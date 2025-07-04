@@ -7,13 +7,14 @@ import (
 )
 
 type Config struct {
-	Env              string `split_words:"true" required:"true"`
+	Env            string `split_words:"true" required:"true"`
+	DatabaseUrl    string `split_words:"true" required:"true"`
+	MessageKeyword string `split_words:"true" required:"true"`
+	Timezone       string `required:"true"`
+	AttachWorker   bool   `split_words:"true"`
+
 	NotionApiKey     string `split_words:"true" required:"true"`
 	NotionDatabaseId string `split_words:"true" required:"true"`
-	DatabaseUrl      string `split_words:"true" required:"true"`
-	MessageKeyword   string `split_words:"true" required:"true"`
-	Timezone         string `required:"true"`
-	AttachWorker     bool   `split_words:"true"`
 
 	LlmProvider      string   `split_words:"true" required:"true"`
 	LlmProviders     []string `split_words:"true"`
