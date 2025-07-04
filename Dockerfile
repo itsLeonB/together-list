@@ -13,6 +13,8 @@ RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -buildvcs=false -ldflags='-w -s'
 # --- Release Stage with Chrome ---
 FROM ubuntu:22.04
 
+ENV DEBIAN_FRONTEND=noninteractive TZ=Asia/Jakarta
+
 RUN apt-get update && apt-get install -y \
     ca-certificates fonts-liberation gnupg libasound2 libatk-bridge2.0-0 \
     libatk1.0-0 libc6 libgbm1 libgtk-3-0 libnss3 libu2f-udev libx11-xcb1 \
