@@ -98,15 +98,13 @@ func (ls *ListService) saveSingleEntry(ctx context.Context, entry entity.Databas
 }
 
 func (ls *ListService) SummarizeEntry(ctx context.Context) error {
-	pages, err := ls.notionRepository.GetSinglePendingPage(ctx)
+	page, err := ls.notionRepository.GetSinglePendingPage(ctx)
 	if err != nil {
 		return err
 	}
-	if len(pages) < 1 {
+	if page.ID == "" {
 		return nil
 	}
-
-	page := pages[0]
 
 	isPending, err := util.IsTitlePending(page)
 	if err != nil {

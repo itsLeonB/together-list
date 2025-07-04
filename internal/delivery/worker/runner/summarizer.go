@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-co-op/gocron"
 	"github.com/itsLeonB/together-list/internal/service"
+	"github.com/itsLeonB/together-list/internal/util"
 )
 
 type summarizer struct {
@@ -35,9 +36,14 @@ func (s *summarizer) Run() {
 }
 
 func (s *summarizer) summarize() {
-	if err := s.listService.SummarizeEntry(context.Background()); err != nil {
-		log.Printf("[%s] ERROR summarizing: %s\n", s.name, err.Error())
+	var err error
+	latency := util.MeasureLatency(func() {
+		err = s.listService.SummarizeEntry(context.Background())
+	})
+	if err != nil {
+		log.Printf("[%s] error summarizing page: %s\n", s.name, err.Error())
 	} else {
-		log.Printf("[%s] SUCCESS summarizing page", s.name)
+		log.Printf("[%s] success summarizing page", s.name)
+		log.Printf("[%s] latency: %d ms", s.name, latency.Milliseconds())
 	}
 }

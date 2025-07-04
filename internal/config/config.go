@@ -16,12 +16,12 @@ type Config struct {
 	NotionApiKey     string `split_words:"true" required:"true"`
 	NotionDatabaseId string `split_words:"true" required:"true"`
 
-	LlmProvider      string   `split_words:"true" required:"true"`
+	LlmProvider      string   `split_words:"true"`
 	LlmProviders     []string `split_words:"true"`
-	GoogleLlmApiKey  string   `split_words:"true" required:"true"`
-	GoogleLlmModel   string   `split_words:"true" required:"true"`
-	OpenRouterApiKey string   `split_words:"true" required:"true"`
-	OpenRouterModel  string   `split_words:"true" required:"true"`
+	GoogleLlmApiKey  string   `split_words:"true"`
+	GoogleLlmModel   string   `split_words:"true"`
+	OpenRouterApiKey string   `split_words:"true"`
+	OpenRouterModel  string   `split_words:"true"`
 
 	WebScraper string `split_words:"true" required:"true"`
 }

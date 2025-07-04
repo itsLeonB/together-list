@@ -14,6 +14,13 @@ type openRouterLLMService struct {
 }
 
 func newOpenRouterService(apiKey, model string) LLMService {
+	if apiKey == "" {
+		log.Fatalf("missing OpenRouter API Key")
+	}
+	if model == "" {
+		log.Fatalf("OpenRouter model is not specified")
+	}
+
 	client, err := openroutergo.NewClient().
 		WithAPIKey(apiKey).
 		WithRefererTitle("TogetherList").
@@ -38,6 +45,10 @@ func (ls *openRouterLLMService) GetResponse(ctx context.Context, prompt string) 
 		Execute()
 	if err != nil {
 		return "", eris.Wrap(err, "error retrieving response")
+	}
+
+	if len(response.Choices) == 0 {
+		return "", eris.New("no response choices returned from OpenRouter API")
 	}
 
 	return response.Choices[0].Message.Content, nil

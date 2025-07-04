@@ -65,7 +65,7 @@ func (nr *NotionRepository) AddPage(ctx context.Context, entry entity.DatabasePa
 	return newPage, nil
 }
 
-func (nr *NotionRepository) GetSinglePendingPage(ctx context.Context) ([]notionapi.Page, error) {
+func (nr *NotionRepository) GetSinglePendingPage(ctx context.Context) (notionapi.Page, error) {
 	response, err := nr.client.Database.Query(ctx, notionapi.DatabaseID(nr.databaseID), &notionapi.DatabaseQueryRequest{
 		Filter: notionapi.PropertyFilter{
 			Property: "title",
@@ -76,10 +76,14 @@ func (nr *NotionRepository) GetSinglePendingPage(ctx context.Context) ([]notiona
 		PageSize: 1,
 	})
 	if err != nil {
-		return nil, eris.Wrap(err, "failed to query pages")
+		return notionapi.Page{}, eris.Wrap(err, "failed to query pages")
 	}
 
-	return response.Results, nil
+	if len(response.Results) == 0 {
+		return notionapi.Page{}, nil
+	}
+
+	return response.Results[0], nil
 }
 
 func (nr *NotionRepository) UpdatePageSummary(ctx context.Context, summary dto.PageSummary) (notionapi.Page, error) {
