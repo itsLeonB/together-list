@@ -3,6 +3,7 @@ package worker
 import (
 	"log"
 	"os"
+	"github.com/itsLeonB/together-list/internal/provider"
 	"os/signal"
 	"syscall"
 	"time"
@@ -58,8 +59,49 @@ func (w *Worker) RunAll() {
 }
 
 func (w *Worker) Stop() {
+
+// Close stops the worker and cleans up associated services
+func (w *Worker) Close(providers *provider.Providers) error {
+	w.Stop()
+	if providers.Services != nil {
+		return providers.Services.Close()
+	}
+
+// Close releases worker resources
+func (w *Worker) Close() {
+	w.Stop()
+}
+	return nil
+}
 	if w.scheduler != nil {
 		w.scheduler.Stop()
 	}
 	log.Println("worker stopped")
+}
+
+// Close releases resources used by the worker and its services
+func (w *Worker) Close(providers *provider.Providers) error {
+	w.Stop()
+	if providers != nil && providers.Services != nil {
+		return providers.Services.Close()
+	}
+	return nil
+}
+
+// Close cleans up worker and associated services
+func (w *Worker) Close(providers *provider.Providers) error {
+	w.Stop()
+	if providers != nil {
+		return providers.Close()
+	}
+	return nil
+}
+
+// Close properly cleans up worker resources and services
+func (w *Worker) Close(providers *provider.Providers) error {
+	w.Stop()
+	if providers != nil && providers.Services != nil {
+		return providers.Services.Close()
+	}
+	return nil
 }

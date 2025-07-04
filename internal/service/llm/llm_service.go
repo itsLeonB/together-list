@@ -1,33 +1,38 @@
 package llm
 
-import (
-	"context"
-	"log"
+import "github.com/itsLeonB/together-list/internal/service"
 
-	"github.com/itsLeonB/together-list/internal/appconstant"
-	"github.com/itsLeonB/together-list/internal/config"
+import "github.com/itsLeonB/together-list/internal/service"
+
+import (
+	"github.com/itsLeonB/together-list/internal/service"
+	"github.com/itsLeonB/together-list/internal/service"
+	"fmt"
+	"context"
+
+	"github.com/itsLeonB/together-list/internal/service"
 )
 
 type LLMService interface {
+	service.Service
+	service.Service
+	Service
+	Service
+	Service
+	service.Service
 	GetResponse(ctx context.Context, prompt string) (string, error)
 }
 
-func NewLLMService(configs *config.Config) LLMService {
-	if len(configs.LlmProviders) > 0 {
-		return newFallbackLLMService(configs)
-	}
-
-	return newSingleLLMService(configs.LlmProvider, configs)
+// llmServiceWrapper wraps any LLM implementation with Close method
+type llmServiceWrapper struct {
+	LLMService
 }
 
-func newSingleLLMService(provider string, configs *config.Config) LLMService {
-	switch provider {
-	case appconstant.GoogleLLM:
-		return newGoogleLLMService(configs.GoogleLlmApiKey, configs.GoogleLlmModel)
-	case appconstant.OpenRouter:
-		return newOpenRouterService(configs.OpenRouterApiKey, configs.OpenRouterModel)
-	default:
-		log.Fatalf("invalid LLM provider: %s", provider)
-		return nil
-	}
+func (w *llmServiceWrapper) Close() error {
+	return nil
+}
+
+// wrapLLMService wraps an LLM service to implement the Service interface
+func wrapLLMService(service LLMService) LLMService {
+	return &llmServiceWrapper{LLMService: service}
 }

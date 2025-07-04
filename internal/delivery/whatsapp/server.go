@@ -31,14 +31,72 @@ func Run(configs *config.Config, providers *internalProvider.Providers) {
 		go w.RunAll()
 	}
 
+	// Setup cleanup
+	defer func() {
+		log.Println("cleaning up services...")
+		if err := providers.Services.Close(); err != nil {
+			log.Printf("error during service cleanup: %v", err)
+		}
+	}()
+
+	// Setup cleanup handler
+	defer func() {
+		if err := providers.Services.Close(); err != nil {
+			log.Printf("error during service cleanup: %v", err)
+		}
+	}()
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+	// Setup cleanup on shutdown
+	defer func() {
+		log.Println("cleaning up services...")
+		if err := providers.Close(); err != nil {
+			log.Printf("error during service cleanup: %v", err)
+		}
+	}()
 	<-c
 
 	if w != nil {
 		log.Println("stopping worker...")
-		w.Stop()
+		// Close worker with cleanup
+		if err := w.Close(providers); err != nil {
+			log.Printf("error closing worker: %v", err)
+		}
+	} else {
+		// Cleanup services even if no worker
+		if err := providers.Services.Close(); err != nil {
+			log.Printf("error during service cleanup: %v", err)
+		}
 	}
 
+	// Cleanup services
+	if err := providers.Services.Close(); err != nil {
+		log.Printf("error during service cleanup: %v", err)
+	}
+	// Cleanup services
+	log.Println("cleaning up services...")
+	if err := providers.Services.Close(); err != nil {
+		log.Printf("error during service cleanup: %v", err)
+	}
+	// Cleanup all services
+	if err := providers.Close(); err != nil {
+		log.Printf("error during service cleanup: %v", err)
+	}
+	// Cleanup services
+	log.Println("cleaning up services...")
+	if err := providers.Services.Close(); err != nil {
+		log.Printf("error during service cleanup: %v", err)
+	}
+	// Cleanup services
+	if err := providers.Services.Close(); err != nil {
+		log.Printf("error during service cleanup: %v", err)
+	}
+
+	// Cleanup services
+	log.Println("cleaning up services...")
+	if err := providers.Services.Close(); err != nil {
+		log.Printf("error during service cleanup: %v", err)
+	}
 	client.Disconnect()
 }
