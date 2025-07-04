@@ -2,11 +2,12 @@ package main
 
 import (
 	"github.com/itsLeonB/together-list/internal/config"
-	"github.com/itsLeonB/together-list/internal/delivery/whatsapp"
+	"github.com/itsLeonB/together-list/internal/delivery/worker"
 	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
 	config := config.LoadConfig()
-	whatsapp.Run(config, nil)
+	w := worker.SetupWorker(config, nil)
+	w.RunAll()
 }
