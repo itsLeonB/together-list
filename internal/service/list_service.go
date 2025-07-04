@@ -7,21 +7,31 @@ import (
 
 	"github.com/itsLeonB/ezutil"
 	"github.com/itsLeonB/together-list/internal/appconstant"
+	"github.com/itsLeonB/together-list/internal/dto"
 	"github.com/itsLeonB/together-list/internal/entity"
 	"github.com/itsLeonB/together-list/internal/repository"
+	"github.com/itsLeonB/together-list/internal/service/llm"
+	"github.com/itsLeonB/together-list/internal/service/scrape"
 	"github.com/itsLeonB/together-list/internal/util"
+	"github.com/jomei/notionapi"
 	"github.com/rotisserie/eris"
 )
 
 type ListService struct {
-	notionRepository *repository.NotionRepository
+	notionRepository  *repository.NotionRepository
+	llmService        llm.LLMService
+	webScraperService scrape.WebScraperService
 }
 
 func NewListService(
 	notionRepository *repository.NotionRepository,
+	llmService llm.LLMService,
+	webScraperService scrape.WebScraperService,
 ) *ListService {
 	return &ListService{
 		notionRepository,
+		llmService,
+		webScraperService,
 	}
 }
 func (ls *ListService) SaveMessage(ctx context.Context, message string, status chan<- string) ([]string, []error) {
@@ -76,7 +86,7 @@ func (ls *ListService) SaveMessage(ctx context.Context, message string, status c
 }
 
 func (ls *ListService) saveSingleEntry(ctx context.Context, entry entity.DatabasePageEntry) (string, error) {
-	page, err := ls.notionRepository.AddPageToDatabase(ctx, entry)
+	page, err := ls.notionRepository.AddPage(ctx, entry)
 	if err != nil {
 		return "", err
 	}
@@ -85,4 +95,52 @@ func (ls *ListService) saveSingleEntry(ctx context.Context, entry entity.Databas
 	}
 
 	return fmt.Sprintf(appconstant.MessageSaved, page.URL), nil
+}
+
+func (ls *ListService) SummarizeEntry(ctx context.Context) error {
+	page, err := ls.notionRepository.GetSinglePendingPage(ctx)
+	if err != nil {
+		return err
+	}
+	if page.ID == "" {
+		return nil
+	}
+
+	isPending, err := util.IsTitlePending(page)
+	if err != nil {
+		return err
+	}
+	if !isPending {
+		return eris.New("page title is not pending")
+	}
+	extractedLink, err := util.GetExtractedLink(page)
+	if err != nil {
+		return err
+	}
+	if extractedLink == "" {
+		return eris.New("extractedLink is empty")
+	}
+
+	html, err := ls.webScraperService.GetHTML(extractedLink)
+	if err != nil {
+		return err
+	}
+
+	prompt := fmt.Sprintf(appconstant.PromptSummarizePage, html)
+
+	response, err := ls.llmService.GetResponse(ctx, prompt)
+	if err != nil {
+		return err
+	}
+
+	summary, err := util.UnmarshalJSONBlock[dto.PageSummary](response)
+	if err != nil {
+		return err
+	}
+
+	summary.PageID = notionapi.PageID(page.ID)
+
+	_, err = ls.notionRepository.UpdatePageSummary(ctx, summary)
+
+	return err
 }
