@@ -16,12 +16,10 @@ type Job struct {
 }
 
 func NewJob(jobName string) *Job {
-	runner := jobrunner.NewJobRunner(jobName)
-	if runner == nil {
-		slog.Error(fmt.Sprintf("job name: %s does not exist", jobName))
-		os.Exit(1)
+	return &Job{
+		jobName,
+		jobrunner.NewJobRunner(jobName),
 	}
-	return &Job{jobName, runner}
 }
 
 func (j *Job) Run(configs *config.Config) {

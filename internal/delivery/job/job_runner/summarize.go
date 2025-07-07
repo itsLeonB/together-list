@@ -18,7 +18,7 @@ func NewSummarizeJob() JobRunner {
 
 func (s *summarize) Setup(configs *config.Config) error {
 	providers := provider.ProvideAll(configs)
-	s.listService = providers.Services.List
+	s.listService = providers.List
 	return nil
 }
 

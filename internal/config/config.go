@@ -18,7 +18,6 @@ type Config struct {
 	DatabaseUrl      string
 	MessageKeyword   string
 	Timezone         string
-	AttachWorker     bool
 	JobName          string
 	NotionApiKey     string
 	NotionDatabaseId string
@@ -32,7 +31,7 @@ type Config struct {
 }
 
 func NewConfigLoader() ConfigLoader {
-	serviceType := os.Getenv("SERVICE_TYPE")
+	serviceType := os.Getenv(appconstant.ServiceTypeEnvKey)
 	switch serviceType {
 	case appconstant.ServiceWhatsapp:
 		var config whatsappConfigLoader

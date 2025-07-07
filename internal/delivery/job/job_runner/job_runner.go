@@ -1,6 +1,12 @@
 package jobrunner
 
-import "github.com/itsLeonB/together-list/internal/config"
+import (
+	"fmt"
+	"log/slog"
+	"os"
+
+	"github.com/itsLeonB/together-list/internal/config"
+)
 
 type JobRunner interface {
 	Setup(configs *config.Config) error
@@ -12,6 +18,8 @@ func NewJobRunner(name string) JobRunner {
 	case "Summarize":
 		return NewSummarizeJob()
 	default:
+		slog.Error(fmt.Sprintf("job name: %s does not exist", name))
+		os.Exit(1)
 		return nil
 	}
 }

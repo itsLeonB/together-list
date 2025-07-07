@@ -1,7 +1,8 @@
 package appconstant
 
 const (
+	ServiceTypeEnvKey = "SERVICE_TYPE"
+
 	ServiceWhatsapp = "whatsapp"
-	ServiceWorker   = "worker"
 	ServiceJob      = "job"
 )
