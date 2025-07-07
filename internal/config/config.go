@@ -1,36 +1,54 @@
 package config
 
 import (
-	"log"
+	"os"
 
+	"github.com/itsLeonB/together-list/internal/appconstant"
+	"github.com/itsLeonB/together-list/internal/logging"
 	"github.com/kelseyhightower/envconfig"
 )
 
-type Config struct {
-	Env            string `split_words:"true" required:"true"`
-	DatabaseUrl    string `split_words:"true" required:"true"`
-	MessageKeyword string `split_words:"true" required:"true"`
-	Timezone       string `required:"true"`
-	AttachWorker   bool   `split_words:"true"`
-
-	NotionApiKey     string `split_words:"true" required:"true"`
-	NotionDatabaseId string `split_words:"true" required:"true"`
-
-	LlmProvider      string   `split_words:"true"`
-	LlmProviders     []string `split_words:"true"`
-	GoogleLlmApiKey  string   `split_words:"true"`
-	GoogleLlmModel   string   `split_words:"true"`
-	OpenRouterApiKey string   `split_words:"true"`
-	OpenRouterModel  string   `split_words:"true"`
-
-	WebScraper string `split_words:"true" required:"true"`
+type ConfigLoader interface {
+	Load() *Config
 }
 
-func LoadConfig() *Config {
-	var newConfig Config
-	if err := envconfig.Process("", &newConfig); err != nil {
-		log.Fatalf("Failed to load config: %v", err)
-	}
+type Config struct {
+	Env              string
+	DatabaseUrl      string
+	MessageKeyword   string
+	Timezone         string
+	JobName          string
+	NotionApiKey     string
+	NotionDatabaseId string
+	LlmProvider      string
+	LlmProviders     []string
+	GoogleLlmApiKey  string
+	GoogleLlmModel   string
+	OpenRouterApiKey string
+	OpenRouterModel  string
+	WebScraper       string
+}
 
-	return &newConfig
+func NewConfigLoader() ConfigLoader {
+	serviceType := os.Getenv(appconstant.ServiceTypeEnvKey)
+	switch serviceType {
+	case appconstant.ServiceWhatsapp:
+		var config whatsappConfigLoader
+		if err := envconfig.Process("", &config); err != nil {
+			logging.Errorf("error loading whatsapp config: %v", err)
+			os.Exit(1)
+		}
+		return &config
+	case appconstant.ServiceJob:
+		var config jobConfig
+		if err := envconfig.Process("", &config); err != nil {
+			logging.Errorf("error loading job config: %v", err)
+			os.Exit(1)
+		}
+		return &config
+	default:
+		logging.Errorf("undefined service type: %s", serviceType)
+		os.Exit(1)
+		return nil
+	}
 }

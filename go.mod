@@ -5,7 +5,6 @@ go 1.24.4
 require (
 	github.com/chromedp/chromedp v0.13.7
 	github.com/eduardolat/openroutergo v0.1.0
-	github.com/go-co-op/gocron v1.37.0
 	github.com/gocolly/colly/v2 v2.2.0
 	github.com/itsLeonB/ezutil v0.11.0
 	github.com/jackc/pgx/v5 v5.7.5
@@ -78,7 +77,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
 	github.com/petermattis/goid v0.0.0-20250508124226-395b08cebbdb // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/saintfish/chardet v0.0.0-20230101081208-5e3ef4b5456d // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
@@ -87,7 +85,6 @@ require (
 	go.mau.fi/libsignal v0.2.0 // indirect
 	go.mau.fi/util v0.8.8 // indirect
 	go.opencensus.io v0.24.0 // indirect
-	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/arch v0.15.0 // indirect
 	golang.org/x/crypto v0.39.0 // indirect
 	golang.org/x/exp v0.0.0-20250606033433-dcc06ee1d476 // indirect

@@ -1,4 +1,4 @@
-.PHONY: hotreload lint test whatsapp worker
+.PHONY: hotreload lint test whatsapp worker job
 
 hotreload:
 	air --build.cmd "go build -o bin/whatsapp cmd/whatsapp/main.go" --build.bin "./bin/whatsapp"
@@ -14,3 +14,6 @@ whatsapp:
 
 worker:
 	go run cmd/worker/main.go
+
+job:
+	go run cmd/job/main.go

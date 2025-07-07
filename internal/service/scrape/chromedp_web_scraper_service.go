@@ -2,9 +2,9 @@ package scrape
 
 import (
 	"context"
-	"log"
 
 	"github.com/chromedp/chromedp"
+	"github.com/itsLeonB/together-list/internal/logging"
 	"github.com/rotisserie/eris"
 )
 
@@ -27,7 +27,7 @@ func newChromeDPWebScraperService() WebScraperService {
 	)
 
 	allocCtx, cancel := chromedp.NewExecAllocator(context.Background(), opts...)
-	ctx, _ := chromedp.NewContext(allocCtx, chromedp.WithLogf(log.Printf))
+	ctx, _ := chromedp.NewContext(allocCtx, chromedp.WithLogf(logging.Infof))
 
 	return &ChromeDPWebScraperService{
 		ctx:    ctx,
