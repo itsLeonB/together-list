@@ -2,8 +2,8 @@ package llm
 
 import (
 	"context"
-	"log"
 
+	"github.com/itsLeonB/together-list/internal/logging"
 	"github.com/rotisserie/eris"
 	"google.golang.org/genai"
 )
@@ -15,10 +15,10 @@ type googleLLMService struct {
 
 func newGoogleLLMService(apiKey, model string) *googleLLMService {
 	if apiKey == "" {
-		log.Fatalf("missing Google AI API Key")
+		logging.Fatal("missing Google AI API Key")
 	}
 	if model == "" {
-		log.Fatalf("Google AI model is not specified")
+		logging.Fatal("Google AI model is not specified")
 	}
 
 	ctx := context.Background()
@@ -26,15 +26,15 @@ func newGoogleLLMService(apiKey, model string) *googleLLMService {
 		APIKey: apiKey,
 	})
 	if err != nil {
-		log.Fatal("error creating Google GenAI client: ", err)
+		logging.Fatalf("error creating Google GenAI client: %v", err)
 	}
 
 	modelVar, err := client.Models.Get(ctx, model, nil)
 	if err != nil {
-		log.Fatalf("error validating Google AI model: %v", err)
+		logging.Fatalf("error validating Google AI model: %v", err)
 	}
 	if modelVar == nil {
-		log.Fatalf("Google AI model: %s is not found/available", model)
+		logging.Fatalf("Google AI model: %s is not found/available", model)
 	}
 
 	return &googleLLMService{

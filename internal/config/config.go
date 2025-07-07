@@ -1,11 +1,10 @@
 package config
 
 import (
-	"fmt"
-	"log/slog"
 	"os"
 
 	"github.com/itsLeonB/together-list/internal/appconstant"
+	"github.com/itsLeonB/together-list/internal/logging"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -36,19 +35,19 @@ func NewConfigLoader() ConfigLoader {
 	case appconstant.ServiceWhatsapp:
 		var config whatsappConfigLoader
 		if err := envconfig.Process("", &config); err != nil {
-			slog.Error(fmt.Sprintf("error loading whatsapp config: %v", err))
+			logging.Errorf("error loading whatsapp config: %v", err)
 			os.Exit(1)
 		}
 		return &config
 	case appconstant.ServiceJob:
 		var config jobConfig
 		if err := envconfig.Process("", &config); err != nil {
-			slog.Error(fmt.Sprintf("error loading job config: %v", err))
+			logging.Errorf("error loading job config: %v", err)
 			os.Exit(1)
 		}
 		return &config
 	default:
-		slog.Error(fmt.Sprintf("undefined service type: %s", serviceType))
+		logging.Errorf("undefined service type: %s", serviceType)
 		os.Exit(1)
 		return nil
 	}

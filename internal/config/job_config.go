@@ -1,8 +1,9 @@
 package config
 
 import (
-	"log/slog"
 	"os"
+
+	"github.com/itsLeonB/together-list/internal/logging"
 )
 
 type jobConfig struct {
@@ -21,7 +22,7 @@ type jobConfig struct {
 
 func (jc *jobConfig) Load() *Config {
 	if jc.LlmProvider == "" && len(jc.LlmProviders) == 0 {
-		slog.Error("LLM_PROVIDER or LLM_PROVIDERS must be set")
+		logging.Error("LLM_PROVIDER or LLM_PROVIDERS must be set")
 		os.Exit(1)
 		return nil
 	}

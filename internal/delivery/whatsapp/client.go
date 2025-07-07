@@ -2,10 +2,10 @@ package whatsapp
 
 import (
 	"context"
-	"log"
 	"os"
 
 	"github.com/itsLeonB/together-list/internal/delivery/whatsapp/provider"
+	"github.com/itsLeonB/together-list/internal/logging"
 	"github.com/mdp/qrterminal/v3"
 	"go.mau.fi/whatsmeow"
 )
@@ -16,12 +16,12 @@ func SetupClient(loggers *provider.Loggers, stores *provider.Stores) *whatsmeow.
 	if client.Store.ID == nil {
 		qrChan, err := client.GetQRChannel(context.Background())
 		if err != nil {
-			log.Fatalf("Unable to get QR channel: %v", err)
+			logging.Fatalf("Unable to get QR channel: %v", err)
 		}
 
 		err = client.Connect()
 		if err != nil {
-			log.Fatalf("Unable to connect: %v", err)
+			logging.Fatalf("Unable to connect: %v", err)
 		}
 
 		for evt := range qrChan {
@@ -35,7 +35,7 @@ func SetupClient(loggers *provider.Loggers, stores *provider.Stores) *whatsmeow.
 		// Already logged in, just connect
 		err := client.Connect()
 		if err != nil {
-			log.Fatalf("Unable to connect: %v", err)
+			logging.Fatalf("Unable to connect: %v", err)
 		}
 	}
 

@@ -2,9 +2,9 @@ package llm
 
 import (
 	"context"
-	"log"
 
 	"github.com/eduardolat/openroutergo"
+	"github.com/itsLeonB/together-list/internal/logging"
 	"github.com/rotisserie/eris"
 )
 
@@ -15,10 +15,10 @@ type openRouterLLMService struct {
 
 func newOpenRouterService(apiKey, model string) LLMService {
 	if apiKey == "" {
-		log.Fatalf("missing OpenRouter API Key")
+		logging.Fatalf("missing OpenRouter API Key")
 	}
 	if model == "" {
-		log.Fatalf("OpenRouter model is not specified")
+		logging.Fatalf("OpenRouter model is not specified")
 	}
 
 	client, err := openroutergo.NewClient().
@@ -27,7 +27,7 @@ func newOpenRouterService(apiKey, model string) LLMService {
 		Create()
 
 	if err != nil {
-		log.Fatalf("error creating open router client: %v", err)
+		logging.Fatalf("error creating open router client: %v", err)
 	}
 
 	return &openRouterLLMService{
