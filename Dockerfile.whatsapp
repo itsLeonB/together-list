@@ -1,0 +1,19 @@
+# --- Build Stage ---
+FROM golang:1.24-alpine AS build-stage
+
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -buildvcs=false -ldflags='-w -s' \
+    -o /whatsapp ./cmd/whatsapp/main.go
+
+# --- Distroless Runtime ---
+FROM gcr.io/distroless/base-debian12
+
+WORKDIR /
+COPY --from=build-stage /whatsapp /whatsapp
+
+USER nonroot:nonroot
+ENTRYPOINT ["/whatsapp"]

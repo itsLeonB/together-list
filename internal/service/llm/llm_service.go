@@ -2,7 +2,7 @@ package llm
 
 import (
 	"context"
-	"log"
+	"log/slog"
 
 	"github.com/itsLeonB/together-list/internal/appconstant"
 	"github.com/itsLeonB/together-list/internal/config"
@@ -27,7 +27,7 @@ func newSingleLLMService(provider string, configs *config.Config) LLMService {
 	case appconstant.OpenRouter:
 		return newOpenRouterService(configs.OpenRouterApiKey, configs.OpenRouterModel)
 	default:
-		log.Fatalf("invalid LLM provider: %s", provider)
+		slog.Warn("no LLM provider configured")
 		return nil
 	}
 }

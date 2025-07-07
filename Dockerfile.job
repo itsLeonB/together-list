@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -buildvcs=false -ldflags='-w -s' \
-    -o /together-list ./cmd/whatsapp/main.go
+    -o /together-list ./cmd/job/main.go
 
 # --- Release Stage with Chrome ---
 FROM ubuntu:22.04

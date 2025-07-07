@@ -34,6 +34,7 @@ func NewListService(
 		webScraperService,
 	}
 }
+
 func (ls *ListService) SaveMessage(ctx context.Context, message string, status chan<- string) ([]string, []error) {
 	urls := util.ExtractUrls(message)
 	if len(urls) == 0 {

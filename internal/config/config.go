@@ -1,36 +1,56 @@
 package config
 
 import (
-	"log"
+	"fmt"
+	"log/slog"
+	"os"
 
+	"github.com/itsLeonB/together-list/internal/appconstant"
 	"github.com/kelseyhightower/envconfig"
 )
 
-type Config struct {
-	Env            string `split_words:"true" required:"true"`
-	DatabaseUrl    string `split_words:"true" required:"true"`
-	MessageKeyword string `split_words:"true" required:"true"`
-	Timezone       string `required:"true"`
-	AttachWorker   bool   `split_words:"true"`
-
-	NotionApiKey     string `split_words:"true" required:"true"`
-	NotionDatabaseId string `split_words:"true" required:"true"`
-
-	LlmProvider      string   `split_words:"true"`
-	LlmProviders     []string `split_words:"true"`
-	GoogleLlmApiKey  string   `split_words:"true"`
-	GoogleLlmModel   string   `split_words:"true"`
-	OpenRouterApiKey string   `split_words:"true"`
-	OpenRouterModel  string   `split_words:"true"`
-
-	WebScraper string `split_words:"true" required:"true"`
+type ConfigLoader interface {
+	Load() *Config
 }
 
-func LoadConfig() *Config {
-	var newConfig Config
-	if err := envconfig.Process("", &newConfig); err != nil {
-		log.Fatalf("Failed to load config: %v", err)
-	}
+type Config struct {
+	Env              string
+	DatabaseUrl      string
+	MessageKeyword   string
+	Timezone         string
+	AttachWorker     bool
+	JobName          string
+	NotionApiKey     string
+	NotionDatabaseId string
+	LlmProvider      string
+	LlmProviders     []string
+	GoogleLlmApiKey  string
+	GoogleLlmModel   string
+	OpenRouterApiKey string
+	OpenRouterModel  string
+	WebScraper       string
+}
 
-	return &newConfig
+func NewConfigLoader() ConfigLoader {
+	serviceType := os.Getenv("SERVICE_TYPE")
+	switch serviceType {
+	case appconstant.ServiceWhatsapp:
+		var config whatsappConfigLoader
+		if err := envconfig.Process("", &config); err != nil {
+			slog.Error(fmt.Sprintf("error loading whatsapp config: %v", err))
+			os.Exit(1)
+		}
+		return &config
+	case appconstant.ServiceJob:
+		var config jobConfig
+		if err := envconfig.Process("", &config); err != nil {
+			slog.Error(fmt.Sprintf("error loading job config: %v", err))
+			os.Exit(1)
+		}
+		return &config
+	default:
+		slog.Error(fmt.Sprintf("undefined service type: %s", serviceType))
+		os.Exit(1)
+		return nil
+	}
 }

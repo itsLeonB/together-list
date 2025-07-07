@@ -7,7 +7,8 @@ import (
 )
 
 func main() {
-	config := config.LoadConfig()
-	w := worker.SetupWorker(config, nil)
+	configLoader := config.NewConfigLoader()
+	configs := configLoader.Load()
+	w := worker.SetupWorker(configs, nil)
 	w.RunAll()
 }

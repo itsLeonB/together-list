@@ -1,7 +1,7 @@
 package scrape
 
 import (
-	"log"
+	"log/slog"
 
 	"github.com/itsLeonB/together-list/internal/appconstant"
 	"github.com/itsLeonB/together-list/internal/config"
@@ -18,7 +18,7 @@ func NewWebScraperService(configs *config.Config) WebScraperService {
 	case appconstant.WebScraperChromeDP:
 		return newChromeDPWebScraperService()
 	default:
-		log.Fatalf("invalid web scraper: %s", configs.WebScraper)
+		slog.Warn("no web scraper configured")
 		return nil
 	}
 }
