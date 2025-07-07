@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/itsLeonB/together-list/internal/appconstant"
 	"github.com/itsLeonB/together-list/internal/dto"
@@ -29,17 +30,7 @@ func (nr *NotionRepository) AddPage(ctx context.Context, entry entity.DatabasePa
 			DatabaseID: notionapi.DatabaseID(nr.databaseID),
 		},
 		Properties: notionapi.Properties{
-			"title": notionapi.TitleProperty{
-				Type: notionapi.PropertyTypeTitle,
-				Title: []notionapi.RichText{
-					{
-						Type: notionapi.ObjectTypeText,
-						Text: &notionapi.Text{
-							Content: entry.Title,
-						},
-					},
-				},
-			},
+			"title": stringToTitleProperty(entry.Title),
 			"extractedLink": notionapi.URLProperty{
 				Type: notionapi.PropertyTypeURL,
 				URL:  entry.URL,
@@ -55,6 +46,8 @@ func (nr *NotionRepository) AddPage(ctx context.Context, entry entity.DatabasePa
 					},
 				},
 			},
+			"createdAt": timeToDateProperty(time.Now()),
+			"updatedAt": timeToDateProperty(time.Now()),
 		},
 	})
 
@@ -89,17 +82,7 @@ func (nr *NotionRepository) GetSinglePendingPage(ctx context.Context) (notionapi
 func (nr *NotionRepository) UpdatePageSummary(ctx context.Context, summary dto.PageSummary) (notionapi.Page, error) {
 	response, err := nr.client.Page.Update(ctx, summary.PageID, &notionapi.PageUpdateRequest{
 		Properties: notionapi.Properties{
-			"title": notionapi.TitleProperty{
-				Type: notionapi.PropertyTypeTitle,
-				Title: []notionapi.RichText{
-					{
-						Type: notionapi.ObjectTypeText,
-						Text: &notionapi.Text{
-							Content: summary.Title,
-						},
-					},
-				},
-			},
+			"title": stringToTitleProperty(summary.Title),
 			"summary": notionapi.RichTextProperty{
 				Type: notionapi.PropertyTypeRichText,
 				RichText: []notionapi.RichText{
@@ -111,6 +94,7 @@ func (nr *NotionRepository) UpdatePageSummary(ctx context.Context, summary dto.P
 					},
 				},
 			},
+			"updatedAt": timeToDateProperty(time.Now()),
 		},
 	})
 
@@ -119,4 +103,28 @@ func (nr *NotionRepository) UpdatePageSummary(ctx context.Context, summary dto.P
 	}
 
 	return *response, nil
+}
+
+func timeToDateProperty(t time.Time) notionapi.DateProperty {
+	startDate := notionapi.Date(t)
+	return notionapi.DateProperty{
+		Type: notionapi.PropertyTypeDate,
+		Date: &notionapi.DateObject{
+			Start: &startDate,
+		},
+	}
+}
+
+func stringToTitleProperty(title string) notionapi.TitleProperty {
+	return notionapi.TitleProperty{
+		Type: notionapi.PropertyTypeTitle,
+		Title: []notionapi.RichText{
+			{
+				Type: notionapi.ObjectTypeText,
+				Text: &notionapi.Text{
+					Content: title,
+				},
+			},
+		},
+	}
 }
