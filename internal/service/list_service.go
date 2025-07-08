@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/itsLeonB/ezutil"
@@ -53,6 +54,15 @@ func NewListService(
 func (ls *ListService) IsKeywordSupported(keyword string) bool {
 	_, ok := ls.notionRepoRegistry[keyword]
 	return ok
+}
+
+func (ls *ListService) GetHelpString() string {
+	keywords := make([]string, 0, len(ls.notionRepoRegistry))
+	for keyword := range ls.notionRepoRegistry {
+		keywords = append(keywords, keyword)
+	}
+
+	return fmt.Sprintf(appconstant.HelpText, strings.Join(keywords, ", "))
 }
 
 func (ls *ListService) SaveMessage(ctx context.Context, msgType, message string, status chan<- string) ([]string, []error) {
