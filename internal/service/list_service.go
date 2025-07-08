@@ -18,34 +18,54 @@ import (
 )
 
 type ListService struct {
-	notionRepository  *repository.NotionRepository
-	llmService        llm.LLMService
-	webScraperService scrape.WebScraperService
+	notionRepoRegistry map[string]repository.NotionRepository
+	llmService         llm.LLMService
+	webScraperService  scrape.WebScraperService
 }
 
 func NewListService(
-	notionRepository *repository.NotionRepository,
+	notionRepos []repository.NotionRepository,
 	llmService llm.LLMService,
 	webScraperService scrape.WebScraperService,
 ) *ListService {
+	notionRepoRegistry := make(map[string]repository.NotionRepository, len(notionRepos))
+	for _, repo := range notionRepos {
+		if repo == nil {
+			continue
+		}
+		keyword := repo.GetKeyword()
+		if keyword == "" {
+			continue
+		}
+		if _, exists := notionRepoRegistry[keyword]; exists {
+			continue // Skip if keyword already exists
+		}
+		notionRepoRegistry[keyword] = repo
+	}
+
 	return &ListService{
-		notionRepository,
+		notionRepoRegistry,
 		llmService,
 		webScraperService,
 	}
 }
 
-func (ls *ListService) SaveMessage(ctx context.Context, message string, status chan<- string) ([]string, []error) {
+func (ls *ListService) IsKeywordSupported(keyword string) bool {
+	_, ok := ls.notionRepoRegistry[keyword]
+	return ok
+}
+
+func (ls *ListService) SaveMessage(ctx context.Context, msgType, message string, status chan<- string) ([]string, []error) {
 	urls := util.ExtractUrls(message)
 	if len(urls) == 0 {
 		return nil, []error{ezutil.BadRequestError(appconstant.NoURL)}
 	}
 
 	if len(urls) == 1 {
-		response, err := ls.saveSingleEntry(ctx, entity.DatabasePageEntry{
-			Title:           "pending",
+		response, err := ls.saveSingleEntry(ctx, entity.NewDatabasePageEntry{
 			URL:             urls[0],
 			OriginalMessage: message,
+			Type:            msgType,
 		})
 		if err != nil {
 			return nil, []error{err}
@@ -66,10 +86,10 @@ func (ls *ListService) SaveMessage(ctx context.Context, message string, status c
 		wg.Add(1)
 		go func(inputUrl string) {
 			defer wg.Done()
-			response, err := ls.saveSingleEntry(ctx, entity.DatabasePageEntry{
-				Title:           appconstant.PendingTitle,
+			response, err := ls.saveSingleEntry(ctx, entity.NewDatabasePageEntry{
 				URL:             inputUrl,
 				OriginalMessage: message,
+				Type:            msgType,
 			})
 			mu.Lock()
 			defer mu.Unlock()
@@ -86,8 +106,16 @@ func (ls *ListService) SaveMessage(ctx context.Context, message string, status c
 	return responses, errors
 }
 
-func (ls *ListService) saveSingleEntry(ctx context.Context, entry entity.DatabasePageEntry) (string, error) {
-	page, err := ls.notionRepository.AddPage(ctx, entry)
+func (ls *ListService) saveSingleEntry(ctx context.Context, entry entity.NewDatabasePageEntry) (string, error) {
+	notionRepo, ok := ls.notionRepoRegistry[entry.Type]
+	if !ok {
+		return "", eris.Errorf("notion repository not found for type: %s", entry.Type)
+	}
+	if notionRepo == nil {
+		return "", eris.New("notion repository is nil")
+	}
+
+	page, err := notionRepo.AddPage(ctx, entry)
 	if err != nil {
 		return "", err
 	}
@@ -99,49 +127,67 @@ func (ls *ListService) saveSingleEntry(ctx context.Context, entry entity.Databas
 }
 
 func (ls *ListService) SummarizeEntry(ctx context.Context) error {
-	page, err := ls.notionRepository.GetSinglePendingPage(ctx)
+	for _, notionRepo := range ls.notionRepoRegistry {
+		ok, err := ls.trySummarizeEntry(ctx, notionRepo)
+		if err != nil {
+			return err
+		}
+		if ok {
+			return nil
+		}
+	}
+
+	return nil
+}
+
+func (ls *ListService) trySummarizeEntry(ctx context.Context, notionRepo repository.NotionRepository) (bool, error) {
+	if notionRepo == nil {
+		return false, nil
+	}
+
+	page, err := notionRepo.GetSinglePendingPage(ctx)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if page.ID == "" {
-		return nil
+		return false, nil
 	}
 
 	isPending, err := util.IsTitlePending(page)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if !isPending {
-		return eris.New("page title is not pending")
+		return false, eris.New("page title is not pending")
 	}
 	extractedLink, err := util.GetExtractedLink(page)
 	if err != nil {
-		return err
+		return false, err
 	}
 	if extractedLink == "" {
-		return eris.New("extractedLink is empty")
+		return false, eris.New("extractedLink is empty")
 	}
 
 	html, err := ls.webScraperService.GetHTML(extractedLink)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	prompt := fmt.Sprintf(appconstant.PromptSummarizePage, html)
 
 	response, err := ls.llmService.GetResponse(ctx, prompt)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	summary, err := util.UnmarshalJSONBlock[dto.PageSummary](response)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	summary.PageID = notionapi.PageID(page.ID)
 
-	_, err = ls.notionRepository.UpdatePageSummary(ctx, summary)
+	_, err = notionRepo.UpdatePageSummary(ctx, summary)
 
-	return err
+	return err == nil, err
 }

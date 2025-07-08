@@ -15,11 +15,7 @@ type ConfigLoader interface {
 type Config struct {
 	Env              string
 	DatabaseUrl      string
-	MessageKeyword   string
-	Timezone         string
 	JobName          string
-	NotionApiKey     string
-	NotionDatabaseId string
 	LlmProvider      string
 	LlmProviders     []string
 	GoogleLlmApiKey  string

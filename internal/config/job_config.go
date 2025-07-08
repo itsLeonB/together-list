@@ -8,9 +8,8 @@ import (
 
 type jobConfig struct {
 	Env              string   `required:"true"`
+	DatabaseUrl      string   `split_words:"true" required:"true"`
 	JobName          string   `split_words:"true" required:"true"`
-	NotionApiKey     string   `split_words:"true" required:"true"`
-	NotionDatabaseId string   `split_words:"true" required:"true"`
 	LlmProvider      string   `split_words:"true"`
 	LlmProviders     []string `split_words:"true"`
 	GoogleLlmApiKey  string   `split_words:"true"`
@@ -29,9 +28,8 @@ func (jc *jobConfig) Load() *Config {
 
 	return &Config{
 		Env:              jc.Env,
+		DatabaseUrl:      jc.DatabaseUrl,
 		JobName:          jc.JobName,
-		NotionApiKey:     jc.NotionApiKey,
-		NotionDatabaseId: jc.NotionDatabaseId,
 		LlmProvider:      jc.LlmProvider,
 		LlmProviders:     jc.LlmProviders,
 		GoogleLlmApiKey:  jc.GoogleLlmApiKey,
