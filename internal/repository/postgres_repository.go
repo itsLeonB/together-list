@@ -6,6 +6,7 @@ import (
 
 	"github.com/itsLeonB/together-list/internal/entity"
 	"github.com/itsLeonB/together-list/internal/logging"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/rotisserie/eris"
 )
 
@@ -20,7 +21,7 @@ func NewPostgresRepository(url string) *PostgresRepository {
 		logging.Fatalf("failed to open database connection: %v", err)
 	}
 
-	if pingErr := db.Ping(); err != nil {
+	if pingErr := db.Ping(); pingErr != nil {
 		if err = db.Close(); err != nil {
 			logging.Errorf("failed to close database connection: %v", err)
 		}
