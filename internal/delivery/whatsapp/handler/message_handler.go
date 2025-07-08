@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/itsLeonB/ezutil"
+	"github.com/itsLeonB/together-list/internal/appconstant"
 	"github.com/itsLeonB/together-list/internal/service"
 	"github.com/itsLeonB/together-list/internal/util"
 	"github.com/rotisserie/eris"
@@ -50,10 +51,6 @@ func (mh *MessageHandler) HandleMessage() func(event any) {
 		fullText := extMsg.GetText()
 		header, body := util.SplitFirstLine(fullText)
 
-		if !mh.listService.IsKeywordSupported(header) || strings.TrimSpace(body) == "" {
-			return
-		}
-
 		ctx := context.Background()
 		chatID := msgEvent.Info.Chat
 		senderID := msgEvent.Info.Sender
@@ -63,6 +60,17 @@ func (mh *MessageHandler) HandleMessage() func(event any) {
 			StanzaID:      proto.String(stanzaID),
 			Participant:   proto.String(senderID.String()),
 			QuotedMessage: msgEvent.Message,
+		}
+
+		if header == appconstant.HelpKeyword {
+			if err := mh.sendMessage(context.Background(), chatID, mh.listService.GetHelpString(), ctxInfo); err != nil {
+				mh.logger.Errorf("Error replying: %s", err.Error())
+			}
+			return
+		}
+
+		if !mh.listService.IsKeywordSupported(header) || strings.TrimSpace(body) == "" {
+			return
 		}
 
 		mh.logger.Infof("Handling message from: %s. Full text: %s", senderID, fullText)
