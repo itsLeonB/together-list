@@ -10,10 +10,7 @@ test:
 	go test ./internal/tests/...
 
 whatsapp:
-	go run cmd/whatsapp/main.go
-
-worker:
-	go run cmd/worker/main.go
+	cp .env.whatsapp .env && go run cmd/whatsapp/main.go
 
 job:
-	go run cmd/job/main.go
+	cp .env.job .env && go run cmd/job/main.go

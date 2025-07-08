@@ -66,6 +66,12 @@ func (nr *NotionRepository) GetSinglePendingPage(ctx context.Context) (notionapi
 				Equals: appconstant.PendingTitle,
 			},
 		},
+		Sorts: []notionapi.SortObject{
+			{
+				Property:  "createdAt",
+				Direction: notionapi.SortOrderDESC,
+			},
+		},
 		PageSize: 1,
 	})
 	if err != nil {
