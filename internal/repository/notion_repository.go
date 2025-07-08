@@ -11,26 +11,32 @@ import (
 	"github.com/rotisserie/eris"
 )
 
-type NotionRepository struct {
-	databaseID string
+type notionRepositoryImpl struct {
+	keyword    string
 	client     *notionapi.Client
+	databaseID notionapi.DatabaseID
 }
 
-func NewNotionRepository(databaseID, token string) *NotionRepository {
-	return &NotionRepository{
-		databaseID: databaseID,
-		client:     notionapi.NewClient(notionapi.Token(token)),
+func NewNotionRepository(db entity.NotionDatabase) NotionRepository {
+	return &notionRepositoryImpl{
+		keyword:    db.Keyword,
+		client:     notionapi.NewClient(notionapi.Token(db.APIKey)),
+		databaseID: notionapi.DatabaseID(db.DatabaseID),
 	}
 }
 
-func (nr *NotionRepository) AddPage(ctx context.Context, entry entity.DatabasePageEntry) (*notionapi.Page, error) {
+func (nr *notionRepositoryImpl) GetKeyword() string {
+	return nr.keyword
+}
+
+func (nr *notionRepositoryImpl) AddPage(ctx context.Context, entry entity.NewDatabasePageEntry) (*notionapi.Page, error) {
 	newPage, err := nr.client.Page.Create(ctx, &notionapi.PageCreateRequest{
 		Parent: notionapi.Parent{
 			Type:       notionapi.ParentTypeDatabaseID,
-			DatabaseID: notionapi.DatabaseID(nr.databaseID),
+			DatabaseID: nr.databaseID,
 		},
 		Properties: notionapi.Properties{
-			"title": stringToTitleProperty(entry.Title),
+			"title": stringToTitleProperty(appconstant.PendingTitle),
 			"extractedLink": notionapi.URLProperty{
 				Type: notionapi.PropertyTypeURL,
 				URL:  entry.URL,
@@ -58,8 +64,8 @@ func (nr *NotionRepository) AddPage(ctx context.Context, entry entity.DatabasePa
 	return newPage, nil
 }
 
-func (nr *NotionRepository) GetSinglePendingPage(ctx context.Context) (notionapi.Page, error) {
-	response, err := nr.client.Database.Query(ctx, notionapi.DatabaseID(nr.databaseID), &notionapi.DatabaseQueryRequest{
+func (nr *notionRepositoryImpl) GetSinglePendingPage(ctx context.Context) (notionapi.Page, error) {
+	response, err := nr.client.Database.Query(ctx, nr.databaseID, &notionapi.DatabaseQueryRequest{
 		Filter: notionapi.PropertyFilter{
 			Property: "title",
 			RichText: &notionapi.TextFilterCondition{
@@ -85,7 +91,7 @@ func (nr *NotionRepository) GetSinglePendingPage(ctx context.Context) (notionapi
 	return response.Results[0], nil
 }
 
-func (nr *NotionRepository) UpdatePageSummary(ctx context.Context, summary dto.PageSummary) (notionapi.Page, error) {
+func (nr *notionRepositoryImpl) UpdatePageSummary(ctx context.Context, summary dto.PageSummary) (notionapi.Page, error) {
 	response, err := nr.client.Page.Update(ctx, summary.PageID, &notionapi.PageUpdateRequest{
 		Properties: notionapi.Properties{
 			"title": stringToTitleProperty(summary.Title),

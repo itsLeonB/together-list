@@ -18,20 +18,17 @@ import (
 )
 
 type MessageHandler struct {
-	messageKeyword string
-	logger         waLog.Logger
-	client         *whatsmeow.Client
-	listService    *service.ListService
+	logger      waLog.Logger
+	client      *whatsmeow.Client
+	listService *service.ListService
 }
 
 func NewMessageHandler(
-	messageKeyword string,
 	logger waLog.Logger,
 	client *whatsmeow.Client,
 	listService *service.ListService,
 ) *MessageHandler {
 	return &MessageHandler{
-		messageKeyword,
 		logger,
 		client,
 		listService,
@@ -53,7 +50,7 @@ func (mh *MessageHandler) HandleMessage() func(event any) {
 		fullText := extMsg.GetText()
 		header, body := util.SplitFirstLine(fullText)
 
-		if header != mh.messageKeyword || strings.TrimSpace(body) == "" {
+		if !mh.listService.IsKeywordSupported(header) || strings.TrimSpace(body) == "" {
 			return
 		}
 
@@ -76,7 +73,7 @@ func (mh *MessageHandler) HandleMessage() func(event any) {
 		go mh.sendStatusUpdates(statusChan, chatID, ctxInfo)
 
 		// process the message
-		responses, errs := mh.listService.SaveMessage(ctx, body, statusChan)
+		responses, errs := mh.listService.SaveMessage(ctx, header, body, statusChan)
 
 		close(statusChan)
 

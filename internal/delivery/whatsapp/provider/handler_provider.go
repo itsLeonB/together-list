@@ -18,7 +18,6 @@ func ProvideHandlers(
 	services *provider.Services,
 ) *Handlers {
 	messageHandler := handler.NewMessageHandler(
-		configs.MessageKeyword,
 		loggers.Client,
 		client,
 		services.List,

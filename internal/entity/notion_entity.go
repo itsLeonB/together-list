@@ -1,7 +1,7 @@
 package entity
 
-type DatabasePageEntry struct {
-	Title           string
+type NewDatabasePageEntry struct {
 	URL             string
 	OriginalMessage string
+	Type            string
 }
