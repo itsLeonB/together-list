@@ -125,6 +125,18 @@ func (ls *ListService) saveSingleEntry(ctx context.Context, entry entity.NewData
 		return "", eris.New("notion repository is nil")
 	}
 
+	existingPages, err := notionRepo.FindAllByURL(ctx, entry.URL)
+	if err != nil {
+		return "", err
+	}
+	if len(existingPages) > 0 {
+		pageLinks := make([]string, len(existingPages))
+		for i, page := range existingPages {
+			pageLinks[i] = page.URL
+		}
+		return fmt.Sprintf(appconstant.URLAlreadyExists, entry.URL, strings.Join(pageLinks, ", ")), nil
+	}
+
 	page, err := notionRepo.AddPage(ctx, entry)
 	if err != nil {
 		return "", err
