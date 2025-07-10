@@ -32,9 +32,13 @@ func (mh *MessageHandler) HandleSave() bot.HandlerFunc {
 		messageID := message.ID
 
 		// Strip command and trim spaces to get the arguments
-		args := message.Text[len(appconstant.TelegramSaveCommand):]
+		if len(message.Text) <= len(appconstant.TelegramSaveCommand) {
+			sendMessage(b, ctx, chatID, appconstant.NoURL, messageID)
+			return
+		}
 
-		if len(args) == 0 || len(args) == len(appconstant.TelegramSaveCommand) {
+		args := strings.TrimSpace(message.Text[len(appconstant.TelegramSaveCommand):])
+		if len(args) == 0 {
 			sendMessage(b, ctx, chatID, appconstant.NoURL, messageID)
 			return
 		}
@@ -66,9 +70,7 @@ func (mh *MessageHandler) HandleSave() bot.HandlerFunc {
 		allMessages := aggregateMessages(responses, errs)
 
 		// send final response
-		if err := sendMessage(b, ctx, chatID, strings.Join(allMessages, "\n\n"), messageID); err != nil {
-			logging.Errorf("Error replying: %s", err.Error())
-		}
+		sendMessage(b, ctx, chatID, strings.Join(allMessages, "\n\n"), messageID)
 	}
 }
 
@@ -81,9 +83,7 @@ func (mh *MessageHandler) HandleHelp() bot.HandlerFunc {
 			helpText = "No help information available."
 		}
 
-		if err := sendMessage(b, ctx, message.Chat.ID, helpText, message.ID); err != nil {
-			logging.Errorf("Error replying: %s", err.Error())
-		}
+		sendMessage(b, ctx, message.Chat.ID, helpText, message.ID)
 	}
 }
 
@@ -92,13 +92,11 @@ func sendStatusUpdates(b *bot.Bot, statusChan <-chan string, chatID int64, messa
 		if msg == "" {
 			continue
 		}
-		if err := sendMessage(b, context.Background(), chatID, msg, messageID); err != nil {
-			logging.Errorf("Error sending status update: %s", err.Error())
-		}
+		sendMessage(b, context.Background(), chatID, msg, messageID)
 	}
 }
 
-func sendMessage(b *bot.Bot, ctx context.Context, chatID int64, msg string, messageID int) error {
+func sendMessage(b *bot.Bot, ctx context.Context, chatID int64, msg string, messageID int) {
 	_, err := b.SendMessage(ctx, &bot.SendMessageParams{
 		ChatID: chatID,
 		Text:   msg,
@@ -106,7 +104,9 @@ func sendMessage(b *bot.Bot, ctx context.Context, chatID int64, msg string, mess
 			MessageID: messageID,
 		},
 	})
-	return err
+	if err != nil {
+		logging.Errorf("Error replying: %s", err.Error())
+	}
 }
 
 func aggregateMessages(responses []string, errs []error) []string {
