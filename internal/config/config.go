@@ -23,28 +23,31 @@ type Config struct {
 	OpenRouterApiKey string
 	OpenRouterModel  string
 	WebScraper       string
+	TelegramBotToken string
 }
 
 func NewConfigLoader() ConfigLoader {
 	serviceType := os.Getenv(appconstant.ServiceTypeEnvKey)
+	configLoader := getConfigLoader(serviceType)
+	if configLoader == nil {
+		logging.Fatalf("undefined service type: %s", serviceType)
+		return nil
+	}
+	if err := envconfig.Process("", configLoader); err != nil {
+		logging.Fatalf("error loading %s config: %v", serviceType, err)
+	}
+	return configLoader
+}
+
+func getConfigLoader(serviceType string) ConfigLoader {
 	switch serviceType {
 	case appconstant.ServiceWhatsapp:
-		var config whatsappConfigLoader
-		if err := envconfig.Process("", &config); err != nil {
-			logging.Errorf("error loading whatsapp config: %v", err)
-			os.Exit(1)
-		}
-		return &config
+		return &whatsappConfigLoader{}
 	case appconstant.ServiceJob:
-		var config jobConfig
-		if err := envconfig.Process("", &config); err != nil {
-			logging.Errorf("error loading job config: %v", err)
-			os.Exit(1)
-		}
-		return &config
+		return &jobConfigLoader{}
+	case appconstant.ServiceTelegram:
+		return &telegramConfigLoader{}
 	default:
-		logging.Errorf("undefined service type: %s", serviceType)
-		os.Exit(1)
 		return nil
 	}
 }

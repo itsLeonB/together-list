@@ -6,7 +6,7 @@ import (
 	"github.com/itsLeonB/together-list/internal/logging"
 )
 
-type jobConfig struct {
+type jobConfigLoader struct {
 	Env              string   `required:"true"`
 	DatabaseUrl      string   `split_words:"true" required:"true"`
 	JobName          string   `split_words:"true" required:"true"`
@@ -19,7 +19,7 @@ type jobConfig struct {
 	WebScraper       string   `split_words:"true" required:"true"`
 }
 
-func (jc *jobConfig) Load() *Config {
+func (jc *jobConfigLoader) Load() *Config {
 	if jc.LlmProvider == "" && len(jc.LlmProviders) == 0 {
 		logging.Error("LLM_PROVIDER or LLM_PROVIDERS must be set")
 		os.Exit(1)

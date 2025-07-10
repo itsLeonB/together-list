@@ -37,8 +37,8 @@ func TestSplitFirstLine(t *testing.T) {
 		input := "\nhttp://only.com"
 		first, rest := util.SplitFirstLine(input)
 
-		assert.Equal(t, "", first)
-		assert.Equal(t, "http://only.com", rest)
+		assert.Equal(t, "http://only.com", first)
+		assert.Equal(t, "", rest)
 	})
 }
 

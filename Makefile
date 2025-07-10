@@ -14,3 +14,6 @@ whatsapp:
 
 job:
 	cp .env.job .env && go run cmd/job/main.go
+
+telegram:
+	cp .env.telegram .env && go run cmd/telegram/main.go

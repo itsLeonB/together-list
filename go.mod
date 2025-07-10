@@ -5,6 +5,7 @@ go 1.24.4
 require (
 	github.com/chromedp/chromedp v0.13.7
 	github.com/eduardolat/openroutergo v0.1.0
+	github.com/go-telegram/bot v1.16.0
 	github.com/gocolly/colly/v2 v2.2.0
 	github.com/itsLeonB/ezutil v0.11.0
 	github.com/jackc/pgx/v5 v5.7.5
