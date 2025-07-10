@@ -31,30 +31,13 @@ func (mh *MessageHandler) HandleSave() bot.HandlerFunc {
 		chatID := message.Chat.ID
 		messageID := message.ID
 
-		// Strip command and trim spaces to get the arguments
-		if len(message.Text) <= len(appconstant.TelegramSaveCommand) {
-			sendMessage(b, ctx, chatID, appconstant.NoURL, messageID)
-			return
-		}
-
-		args := strings.TrimSpace(message.Text[len(appconstant.TelegramSaveCommand):])
-		if len(args) == 0 {
-			sendMessage(b, ctx, chatID, appconstant.NoURL, messageID)
-			return
-		}
-
-		header, body := util.SplitFirstLine(args)
-
-		if !mh.listService.IsKeywordSupported(header) {
-			sendMessage(b, ctx, chatID, appconstant.UnsupportedKeyword(header), messageID)
-			return
-		}
+		header, body := util.SplitFirstLine(message.Text)
 		if strings.TrimSpace(body) == "" {
 			sendMessage(b, ctx, chatID, appconstant.NoURL, messageID)
 			return
 		}
 
-		logging.Infof("Handling message from: %s. Full text: %s", message.From.Username, args)
+		logging.Infof("Handling message from: %s. Full text: %s", message.From.Username, message.Text)
 
 		statusChan := make(chan string)
 

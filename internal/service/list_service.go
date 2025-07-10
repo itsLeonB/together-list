@@ -57,11 +57,7 @@ func (ls *ListService) IsKeywordSupported(keyword string) bool {
 }
 
 func (ls *ListService) GetHelpString() string {
-	keywords := make([]string, 0, len(ls.notionRepoRegistry))
-	for keyword := range ls.notionRepoRegistry {
-		keywords = append(keywords, keyword)
-	}
-
+	keywords := ls.GetKeywords()
 	return fmt.Sprintf(appconstant.HelpText, strings.Join(keywords, ", "))
 }
 
@@ -200,4 +196,13 @@ func (ls *ListService) trySummarizeEntry(ctx context.Context, notionRepo reposit
 	_, err = notionRepo.UpdatePageSummary(ctx, summary)
 
 	return err == nil, err
+}
+
+func (ls *ListService) GetKeywords() []string {
+	keywords := make([]string, 0, len(ls.notionRepoRegistry))
+	for keyword := range ls.notionRepoRegistry {
+		keywords = append(keywords, keyword)
+	}
+
+	return keywords
 }
