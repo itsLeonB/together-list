@@ -9,14 +9,17 @@ import (
 func setupHandlers(b *bot.Bot, handlers *provider.Handlers) {
 	b.RegisterHandler(
 		bot.HandlerTypeMessageText,
-		appconstant.TelegramSaveCommand,
-		bot.MatchTypePrefix,
-		handlers.Message.HandleSave(),
-	)
-	b.RegisterHandler(
-		bot.HandlerTypeMessageText,
-		appconstant.TelegramHelpCommand,
+		appconstant.HelpKeyword,
 		bot.MatchTypePrefix,
 		handlers.Message.HandleHelp(),
 	)
+
+	for _, keyword := range handlers.Keywords {
+		b.RegisterHandler(
+			bot.HandlerTypeMessageText,
+			keyword,
+			bot.MatchTypePrefix,
+			handlers.Message.HandleSave(),
+		)
+	}
 }

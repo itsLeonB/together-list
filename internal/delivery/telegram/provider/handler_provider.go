@@ -6,13 +6,15 @@ import (
 )
 
 type Handlers struct {
-	Message *handler.MessageHandler
+	Message  *handler.MessageHandler
+	Keywords []string
 }
 
 func ProvideHandlers(
 	services *provider.Services,
 ) *Handlers {
 	return &Handlers{
-		Message: handler.NewMessageHandler(services.List),
+		Message:  handler.NewMessageHandler(services.List),
+		Keywords: services.List.GetKeywords(),
 	}
 }
