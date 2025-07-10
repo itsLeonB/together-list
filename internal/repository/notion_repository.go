@@ -91,6 +91,22 @@ func (nr *notionRepositoryImpl) GetSinglePendingPage(ctx context.Context) (notio
 	return response.Results[0], nil
 }
 
+func (nr *notionRepositoryImpl) FindAllByURL(ctx context.Context, url string) ([]notionapi.Page, error) {
+	response, err := nr.client.Database.Query(ctx, nr.databaseID, &notionapi.DatabaseQueryRequest{
+		Filter: notionapi.PropertyFilter{
+			Property: "extractedLink",
+			RichText: &notionapi.TextFilterCondition{
+				Equals: url,
+			},
+		},
+	})
+	if err != nil {
+		return nil, eris.Wrap(err, "failed to query pages")
+	}
+
+	return response.Results, nil
+}
+
 func (nr *notionRepositoryImpl) UpdatePageSummary(ctx context.Context, summary dto.PageSummary) (notionapi.Page, error) {
 	response, err := nr.client.Page.Update(ctx, summary.PageID, &notionapi.PageUpdateRequest{
 		Properties: notionapi.Properties{

@@ -13,4 +13,5 @@ type NotionRepository interface {
 	AddPage(ctx context.Context, entry entity.NewDatabasePageEntry) (*notionapi.Page, error)
 	GetSinglePendingPage(ctx context.Context) (notionapi.Page, error)
 	UpdatePageSummary(ctx context.Context, summary dto.PageSummary) (notionapi.Page, error)
+	FindAllByURL(ctx context.Context, url string) ([]notionapi.Page, error)
 }
