@@ -5,4 +5,5 @@ const (
 
 	ServiceWhatsapp = "whatsapp"
 	ServiceJob      = "job"
+	ServiceTelegram = "telegram"
 )

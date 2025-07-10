@@ -8,13 +8,14 @@ import (
 )
 
 func SplitFirstLine(inputText string) (string, string) {
-	newlineIndex := strings.Index(inputText, "\n")
+	trimmed := strings.TrimLeft(inputText, "\n")
+	newlineIndex := strings.Index(trimmed, "\n")
 
 	if newlineIndex == -1 {
-		return inputText, ""
+		return trimmed, ""
 	}
 
-	return inputText[:newlineIndex], inputText[newlineIndex+1:]
+	return trimmed[:newlineIndex], trimmed[newlineIndex+1:]
 }
 
 func UnmarshalJSONBlock[T any](input string) (T, error) {
