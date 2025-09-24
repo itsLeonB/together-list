@@ -7,11 +7,11 @@ import (
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
-	"github.com/itsLeonB/ezutil"
 	"github.com/itsLeonB/together-list/internal/appconstant"
 	"github.com/itsLeonB/together-list/internal/logging"
 	"github.com/itsLeonB/together-list/internal/service"
 	"github.com/itsLeonB/together-list/internal/util"
+	"github.com/itsLeonB/ungerr"
 	"github.com/rotisserie/eris"
 )
 
@@ -103,7 +103,7 @@ func aggregateMessages(responses []string, errs []error) []string {
 
 	for _, err := range errs {
 		switch e := err.(type) {
-		case ezutil.AppError:
+		case ungerr.AppError:
 			logging.Errorf("%s", e.Details)
 			messages = append(messages, fmt.Sprintf("%s", e.Details))
 		default:

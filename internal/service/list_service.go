@@ -6,7 +6,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/itsLeonB/ezutil"
 	"github.com/itsLeonB/together-list/internal/appconstant"
 	"github.com/itsLeonB/together-list/internal/dto"
 	"github.com/itsLeonB/together-list/internal/entity"
@@ -14,6 +13,7 @@ import (
 	"github.com/itsLeonB/together-list/internal/service/llm"
 	"github.com/itsLeonB/together-list/internal/service/scrape"
 	"github.com/itsLeonB/together-list/internal/util"
+	"github.com/itsLeonB/ungerr"
 	"github.com/jomei/notionapi"
 	"github.com/rotisserie/eris"
 )
@@ -64,7 +64,7 @@ func (ls *ListService) GetHelpString() string {
 func (ls *ListService) SaveMessage(ctx context.Context, msgType, message string, status chan<- string) ([]string, []error) {
 	urls := util.ExtractUrls(message)
 	if len(urls) == 0 {
-		return nil, []error{ezutil.BadRequestError(appconstant.NoURL)}
+		return nil, []error{ungerr.BadRequestError(appconstant.NoURL)}
 	}
 
 	if len(urls) == 1 {

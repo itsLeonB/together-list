@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/itsLeonB/ezutil"
 	"github.com/itsLeonB/together-list/internal/appconstant"
 	"github.com/itsLeonB/together-list/internal/service"
 	"github.com/itsLeonB/together-list/internal/util"
+	"github.com/itsLeonB/ungerr"
 	"github.com/rotisserie/eris"
 	"go.mau.fi/whatsmeow"
 	"go.mau.fi/whatsmeow/proto/waE2E"
@@ -127,7 +127,7 @@ func (mh *MessageHandler) aggregateMessages(responses []string, errs []error) []
 
 	for _, err := range errs {
 		switch e := err.(type) {
-		case ezutil.AppError:
+		case ungerr.AppError:
 			mh.logger.Errorf("%s", e.Details)
 			messages = append(messages, fmt.Sprintf("%s", e.Details))
 		default:

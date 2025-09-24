@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 
-	"github.com/itsLeonB/ezutil"
+	"github.com/itsLeonB/ezutil/v2"
 	"github.com/itsLeonB/together-list/internal/config"
 	"github.com/itsLeonB/together-list/internal/logging"
 	"github.com/itsLeonB/together-list/internal/repository"

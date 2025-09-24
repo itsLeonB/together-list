@@ -1,6 +1,8 @@
 package provider
 
-import "github.com/itsLeonB/together-list/internal/config"
+import (
+	"github.com/itsLeonB/together-list/internal/config"
+)
 
 type Providers struct {
 	*Repositories
